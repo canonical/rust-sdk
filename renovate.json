@@ -13,19 +13,19 @@
       "matchStrings": [
         "(?<currentValue>[0-9.]+)"
       ],
-      "depNameTemplate": "TODO_DEP_NAME",
-      "datasourceTemplate": "TODO_DATASOURCE",
+      "depNameTemplate": "rust-lang/rustup",
+      "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
     }
   ],
   "baseBranchPatterns": [
-    "TODO_BRANCH"
+    "1"
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["TODO_DEP_NAME"],
-      "matchBaseBranches": ["TODO_BRANCH"],
-      "allowedVersions": "/^TODO_VERSION_PREFIX\\./"
+      "matchPackageNames": ["rust-lang/rustup"],
+      "matchBaseBranches": ["1"],
+      "allowedVersions": "/^1\\./"
     }
   ]
 }

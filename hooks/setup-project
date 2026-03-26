@@ -1,0 +1,8 @@
+# Cleanup any existing rustup settings
+rm -rf ~/.rustup/settings.toml
+# set stable channel as default toolchain if rust-toolchain.toml or
+# rust-toolchain doesn't exist on the root directory
+# See: https://rust-lang.github.io/rustup/overrides.html#the-toolchain-file
+if [ ! -f "rust-toolchain.toml" ] && [ ! -f "rust-toolchain" ]; then
+    rustup default stable
+fi

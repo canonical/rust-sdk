@@ -1,0 +1,58 @@
+name: rust
+adopt-info: rustup
+summary: The Rust toolchain installer
+description: |
+  This SDK provides rustup and the Rust toolchain for Rust development.
+  Toolchains and Cargo configuration are persisted on the host across
+  workshop updates. Automatically detects project toolchain requirements
+  via rust-toolchain.toml.
+license: Apache-2.0 OR MIT
+platforms:
+  ubuntu@24.04:amd64:
+  ubuntu@24.04:arm64:
+  ubuntu@22.04:amd64:
+  ubuntu@22.04:arm64:
+
+plugs:
+  rustup-and-toolchains:
+    interface: mount
+    workshop-target: /home/workshop/.rustup
+
+  cargo-global-config:
+    interface: mount
+    workshop-target: /home/workshop/.cargo
+
+parts:
+  rustup:
+    plugin: rust
+    rust-use-global-lto: 1
+    rust-no-default-features: 1
+    rust-features:
+      - no-self-update
+      - curl-backend
+      - reqwest-native-tls
+      - reqwest-rustls-tls
+    source: https://github.com/rust-lang/rustup.git
+    source-type: git
+    source-tag: $CRAFT_PROJECT_VERSION
+    build-packages:
+      - pkg-config
+      - libssl-dev
+      - zlib1g-dev
+      - cmake
+      - clang
+    build-attributes:
+      - enable-patchelf
+    override-pull: |
+      VERSION=$(cat "$CRAFT_PROJECT_DIR/VERSION")
+      craftctl set version="$VERSION"
+      rustup default stable
+      craftctl default
+    override-build: |
+      craftctl default
+      mv -v "$CRAFT_PART_INSTALL"/bin/rustup-init "$CRAFT_PART_INSTALL"/bin/rustup
+      # create symlinks to other tools
+      _bins=(rustc cargo cargo-clippy cargo-fmt cargo-miri clippy-driver rust-gdb rust-lldb rls rust-analyzer rustdoc rustfmt rust-gdbgui)
+      for b in "${_bins[@]}"; do
+          ln -sv rustup "$CRAFT_PART_INSTALL"/bin/$b
+      done

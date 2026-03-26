@@ -1,0 +1,5 @@
+if sudo -u workshop --login cargo --version; then
+    workshopctl set-health okay
+else
+    workshopctl set-health --code=installation-failed error "cargo --version failed"
+fi

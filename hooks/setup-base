@@ -1,0 +1,5 @@
+cat <<EOF >> /etc/profile.d/rust.sh
+PATH="$SDK/bin:\$PATH"
+EOF
+
+sudo -u workshop --login rustup completions bash | sudo tee /etc/bash_completion.d/rustup.sh > /dev/null
