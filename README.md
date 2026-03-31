@@ -17,7 +17,7 @@ name: rust-app
 base: ubuntu@24.04
 sdks:
   - name: rust
-    channel: 24.04/edge
+    channel: 1/stable
 
 actions:
   build: cargo build "$@"
