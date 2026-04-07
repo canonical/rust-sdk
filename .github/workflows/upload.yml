@@ -22,6 +22,7 @@ jobs:
       platforms: '["ubuntu@22.04:amd64","ubuntu@24.04:amd64"]'
       platform-flag: "--platform"
       track: latest
+      risk: "stable"
     secrets:
       SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
   build-and-upload-arm64:
@@ -31,5 +32,6 @@ jobs:
       platform-flag: "--platform"
       runs-on: '["self-hosted-linux-arm64-noble-xlarge"]'
       track: latest
+      risk: "stable"
     secrets:
       SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
