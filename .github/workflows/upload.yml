@@ -24,7 +24,7 @@ jobs:
       track: latest
       risk: "stable"
     secrets:
-      SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
+      SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_PROD }}
   build-and-upload-arm64:
     uses: canonical/sdkcraft-actions/.github/workflows/upload.yml@main
     with:
@@ -34,4 +34,4 @@ jobs:
       track: latest
       risk: "stable"
     secrets:
-      SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_STAGING }}
+      SDKCRAFT_STORE_CREDENTIALS: ${{ secrets.SDKCRAFT_STORE_CREDENTIALS_PROD }}
