@@ -3,3 +3,4 @@ PATH="$SDK/bin:\$PATH"
 EOF
 
 sudo -u workshop --login rustup completions bash | sudo tee /etc/bash_completion.d/rustup.sh > /dev/null
+sudo apt-get -qq update && sudo apt-get -qqy install build-essential
