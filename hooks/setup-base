@@ -1,6 +1,15 @@
+apt-get update
+apt-get install build-essential
+
 cat <<EOF >> /etc/profile.d/rust.sh
 PATH="$SDK/bin:\$PATH"
 EOF
 
-sudo -u workshop --login rustup completions bash | sudo tee /etc/bash_completion.d/rustup.sh > /dev/null
-sudo apt-get -qq update && sudo apt-get -qqy install build-essential
+# Ensure hook is idempotent.
+rm -f /home/workshop/.rustup/settings.toml
+
+sudo -u workshop --login rustup default stable
+
+# shellcheck source=/dev/null
+. /etc/profile.d/rust.sh
+rustup completions bash > /etc/bash_completion.d/rustup.sh

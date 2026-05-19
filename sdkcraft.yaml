@@ -1,5 +1,5 @@
 name: rust
-adopt-info: rustup
+version: "1.29.0"
 summary: The Rust toolchain installer
 description: |
   This SDK provides rustup and the Rust toolchain for Rust development.
@@ -14,13 +14,9 @@ platforms:
   ubuntu@22.04:arm64:
 
 plugs:
-  rustup-and-toolchains:
+  cargo-registry:
     interface: mount
-    workshop-target: /home/workshop/.rustup
-
-  cargo-global-config:
-    interface: mount
-    workshop-target: /home/workshop/.cargo
+    workshop-target: /home/workshop/.cargo/registry
 
 parts:
   rustup:
@@ -44,8 +40,6 @@ parts:
     build-attributes:
       - enable-patchelf
     override-pull: |
-      VERSION=$(cat "$CRAFT_PROJECT_DIR/VERSION")
-      craftctl set version="$VERSION"
       rustup default stable
       craftctl default
     override-build: |
