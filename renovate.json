@@ -9,9 +9,11 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^VERSION$/"],
+      "managerFilePatterns": [
+        "/^sdkcraft\\.yaml$/"
+      ],
       "matchStrings": [
-        "(?<currentValue>[0-9.]+)"
+        "version:\\s*\"(?<currentValue>[0-9.]+)\""
       ],
       "depNameTemplate": "rust-lang/rustup",
       "datasourceTemplate": "github-releases",
@@ -23,8 +25,12 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": ["rust-lang/rustup"],
-      "matchBaseBranches": ["1"],
+      "matchPackageNames": [
+        "rust-lang/rustup"
+      ],
+      "matchBaseBranches": [
+        "1"
+      ],
       "allowedVersions": "/^1\\./"
     }
   ]
