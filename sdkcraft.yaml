@@ -34,7 +34,7 @@ parts:
       - reqwest-rustls-tls
     source: https://github.com/rust-lang/rustup.git
     source-type: git
-    source-tag: $CRAFT_PROJECT_VERSION
+    source-tag: "1.29.0"
     build-packages:
       - pkg-config
       - libssl-dev
