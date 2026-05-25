@@ -7,4 +7,8 @@ on:
 
 jobs:
   renovate-check:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
     uses: canonical/sdkcraft-actions/.github/workflows/renovate-check.yml@main
