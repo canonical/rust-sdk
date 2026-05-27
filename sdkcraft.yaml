@@ -37,6 +37,9 @@ parts:
       - zlib1g-dev
       - cmake
       - clang
+    build-environment:
+      - CC: clang
+      - CXX: clang++
     build-attributes:
       - enable-patchelf
     override-pull: |
