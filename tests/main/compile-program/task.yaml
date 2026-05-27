@@ -1,0 +1,135 @@
+summary: Compile, test, and run a multi-module Rust crate with an external dependency
+
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  # A "slightly complex" Rust program that exercises the toolchain:
+  #   * external crate (uuid) → fetched into the cargo-registry plug
+  #   * sub-module (parallel) → exercises module resolution
+  #   * threads + std::sync::mpsc → exercises the runtime + linker
+  #   * unit test → exercises `cargo test`
+  #   * built binary → exercises `cargo build` + linking against std
+  #
+  # Each source file is written via a `bash -c` heredoc inside the
+  # workshop. The heredoc terminator must sit on its own line, so the
+  # closing `"` of the `bash -c` argument is placed on a separate line.
+
+  workshop exec -- bash -c "mkdir -p /home/workshop/app/src"
+
+  workshop exec -- bash -c "cat > /home/workshop/app/Cargo.toml <<'CARGO'
+  [package]
+  name = \"spread-app\"
+  version = \"0.1.0\"
+  edition = \"2021\"
+
+  [dependencies]
+  uuid = { version = \"=1.10.0\", features = [\"v4\"] }
+  CARGO
+  "
+
+  workshop exec -- bash -c "cat > /home/workshop/app/src/main.rs <<'MAIN'
+  mod parallel;
+
+  fn main() {
+      let ids = parallel::generate_ids(8, 16);
+      if ids.len() != 16 {
+          eprintln!(\"expected 16 ids, got {}\", ids.len());
+          std::process::exit(1);
+      }
+      for id in ids {
+          println!(\"{}\", id);
+      }
+  }
+  MAIN
+  "
+
+  workshop exec -- bash -c "cat > /home/workshop/app/src/parallel.rs <<'PARALLEL'
+  use std::sync::{mpsc, Arc, Mutex};
+  use std::thread;
+  use uuid::Uuid;
+
+  pub fn generate_ids(workers: usize, n: usize) -> Vec<String> {
+      let (job_tx, job_rx) = mpsc::channel::<usize>();
+      let (res_tx, res_rx) = mpsc::channel::<(usize, String)>();
+      let job_rx = Arc::new(Mutex::new(job_rx));
+
+      let mut handles = Vec::with_capacity(workers);
+      for _ in 0..workers {
+          let res_tx = res_tx.clone();
+          let job_rx = Arc::clone(&job_rx);
+          handles.push(thread::spawn(move || loop {
+              let i = match job_rx.lock().unwrap().recv() {
+                  Ok(i) => i,
+                  Err(_) => break,
+              };
+              res_tx.send((i, Uuid::new_v4().to_string())).unwrap();
+          }));
+      }
+
+      for i in 0..n {
+          job_tx.send(i).unwrap();
+      }
+      drop(job_tx);
+
+      for h in handles {
+          h.join().unwrap();
+      }
+      drop(res_tx);
+
+      let mut results = vec![String::new(); n];
+      while let Ok((i, id)) = res_rx.recv() {
+          results[i] = id;
+      }
+      results
+  }
+
+  #[cfg(test)]
+  mod tests {
+      use super::*;
+      use std::collections::HashSet;
+
+      #[test]
+      fn generates_unique_ids() {
+          let ids = generate_ids(4, 32);
+          assert_eq!(ids.len(), 32);
+          let mut seen = HashSet::new();
+          for id in &ids {
+              assert!(!id.is_empty(), \"got empty id\");
+              assert!(seen.insert(id.clone()), \"duplicate id\");
+          }
+      }
+  }
+  PARALLEL
+  "
+
+  # Resolve the dependency and build the test binary: populates the
+  # cargo-registry plug and writes Cargo.lock.
+  workshop exec -- bash -lc 'cd ~/app && cargo fetch'
+
+  # Sanity-check that the external crate landed in the cache plug, not
+  # somewhere on a default tmpfs path.
+  workshop exec -- bash -lc 'ls /home/workshop/.cargo/registry/cache/index.crates.io-*/uuid-*.crate' \
+    | MATCH "uuid-1\.10\.0\.crate$"
+
+  # Run the test suite — must pass.
+  workshop exec -- bash -lc 'cd ~/app && cargo test' | MATCH "test result: ok\. 1 passed"
+
+  # Build the binary and run it.
+  workshop exec -- bash -lc 'cd ~/app && cargo build'
+  workshop exec -- bash -lc 'test -x /home/workshop/app/target/debug/spread-app'
+
+  # The program prints 16 UUIDs, one per line.
+  workshop exec -- bash -lc '/home/workshop/app/target/debug/spread-app | wc -l' | MATCH "^16$"
+
+debug: |
+  workshop exec -- bash -lc 'ls -la /home/workshop/app /home/workshop/app/src' || true
+  workshop exec -- bash -lc 'cat /home/workshop/app/Cargo.toml /home/workshop/app/Cargo.lock' || true
+  workshop exec -- bash -lc 'cat /home/workshop/app/src/main.rs' || true
+  workshop exec -- bash -lc 'cat /home/workshop/app/src/parallel.rs' || true
+  workshop exec -- bash -lc 'ls -la /home/workshop/.cargo/registry/cache/ 2>/dev/null || true'
+  workshop exec -- bash -lc 'rustup show' || true

@@ -1,0 +1,23 @@
+summary: setup-base provisions a usable stable toolchain for the workshop user
+
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  # setup-base runs `rustup default stable` as the workshop user, so the
+  # active toolchain in any fresh login shell must be a stable-<triple>.
+  # Architecture triple is left unanchored so the test passes on both
+  # amd64 and arm64.
+  workshop exec -- bash -lc 'rustup show active-toolchain' | MATCH "^stable-"
+
+  # And rustc/cargo from that toolchain must actually run.
+  workshop exec -- bash -lc 'rustc --version' | MATCH "^rustc [0-9]+\.[0-9]+\.[0-9]+"
+  workshop exec -- bash -lc 'cargo --version' | MATCH "^cargo [0-9]+\.[0-9]+\.[0-9]+"
+
+debug: |
+  workshop exec -- bash -lc 'rustup show' || true
+  workshop exec -- bash -lc 'ls -la /home/workshop/.rustup' || true
