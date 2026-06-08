@@ -15,13 +15,12 @@ execute: |
   #   * unit test → exercises `cargo test`
   #   * built binary → exercises `cargo build` + linking against std
   #
-  # Each source file is written via a `bash -c` heredoc inside the
-  # workshop. The heredoc terminator must sit on its own line, so the
-  # closing `"` of the `bash -c` argument is placed on a separate line.
+  # Each source file is streamed into the workshop via stdin so no
+  # in-workshop shell is needed for redirects or heredocs.
 
-  workshop exec -- bash -c "mkdir -p /home/workshop/app/src"
+  workshop exec -- mkdir -p /home/workshop/app/src
 
-  workshop exec -- bash -c "cat > /home/workshop/app/Cargo.toml <<'CARGO'
+  workshop exec -- tee /home/workshop/app/Cargo.toml >/dev/null <<'CARGO'
   [package]
   name = \"spread-app\"
   version = \"0.1.0\"
@@ -30,9 +29,8 @@ execute: |
   [dependencies]
   uuid = { version = \"=1.10.0\", features = [\"v4\"] }
   CARGO
-  "
 
-  workshop exec -- bash -c "cat > /home/workshop/app/src/main.rs <<'MAIN'
+  workshop exec -- tee /home/workshop/app/src/main.rs >/dev/null <<'MAIN'
   mod parallel;
 
   fn main() {
@@ -46,9 +44,8 @@ execute: |
       }
   }
   MAIN
-  "
 
-  workshop exec -- bash -c "cat > /home/workshop/app/src/parallel.rs <<'PARALLEL'
+  workshop exec -- tee /home/workshop/app/src/parallel.rs >/dev/null <<'PARALLEL'
   use std::sync::{mpsc, Arc, Mutex};
   use std::thread;
   use uuid::Uuid;
@@ -105,31 +102,30 @@ execute: |
       }
   }
   PARALLEL
-  "
 
   # Resolve the dependency and build the test binary: populates the
   # cargo-registry plug and writes Cargo.lock.
-  workshop exec -- bash -lc 'cd ~/app && cargo fetch'
+  workshop exec -w /home/workshop/app -- cargo fetch
 
   # Sanity-check that the external crate landed in the cache plug, not
   # somewhere on a default tmpfs path.
-  workshop exec -- bash -lc 'ls /home/workshop/.cargo/registry/cache/index.crates.io-*/uuid-*.crate' \
+  workshop exec -- find /home/workshop/.cargo/registry/cache -name 'uuid-*.crate' \
     | MATCH "uuid-1\.10\.0\.crate$"
 
   # Run the test suite — must pass.
-  workshop exec -- bash -lc 'cd ~/app && cargo test' | MATCH "test result: ok\. 1 passed"
+  workshop exec -w /home/workshop/app -- cargo test | MATCH "test result: ok\. 1 passed"
 
   # Build the binary and run it.
-  workshop exec -- bash -lc 'cd ~/app && cargo build'
-  workshop exec -- bash -lc 'test -x /home/workshop/app/target/debug/spread-app'
+  workshop exec -w /home/workshop/app -- cargo build
+  workshop exec -- test -x /home/workshop/app/target/debug/spread-app
 
   # The program prints 16 UUIDs, one per line.
-  workshop exec -- bash -lc '/home/workshop/app/target/debug/spread-app | wc -l' | MATCH "^16$"
+  workshop exec -- /home/workshop/app/target/debug/spread-app | wc -l | MATCH "^\s*16$"
 
 debug: |
-  workshop exec -- bash -lc 'ls -la /home/workshop/app /home/workshop/app/src' || true
-  workshop exec -- bash -lc 'cat /home/workshop/app/Cargo.toml /home/workshop/app/Cargo.lock' || true
-  workshop exec -- bash -lc 'cat /home/workshop/app/src/main.rs' || true
-  workshop exec -- bash -lc 'cat /home/workshop/app/src/parallel.rs' || true
-  workshop exec -- bash -lc 'ls -la /home/workshop/.cargo/registry/cache/ 2>/dev/null || true'
-  workshop exec -- bash -lc 'rustup show' || true
+  workshop exec -- ls -la /home/workshop/app /home/workshop/app/src || true
+  workshop exec -- cat /home/workshop/app/Cargo.toml /home/workshop/app/Cargo.lock || true
+  workshop exec -- cat /home/workshop/app/src/main.rs || true
+  workshop exec -- cat /home/workshop/app/src/parallel.rs || true
+  workshop exec -- ls -la /home/workshop/.cargo/registry/cache/ || true
+  workshop exec -- rustup show || true

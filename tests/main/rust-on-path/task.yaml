@@ -10,10 +10,10 @@ restore: |
 execute: |
   # `workshop exec` runs as the `workshop` user with a login shell,
   # which is what setup-base configures via /etc/profile.d/rust.sh.
-  workshop exec -- bash -lc 'command -v rustup' | MATCH "/rustup$"
-  workshop exec -- bash -lc 'command -v rustc'  | MATCH "/rustc$"
-  workshop exec -- bash -lc 'command -v cargo'  | MATCH "/cargo$"
+  workshop exec -- which rustup | MATCH "/rustup$"
+  workshop exec -- which rustc | MATCH "/rustc$"
+  workshop exec -- which cargo | MATCH "/cargo$"
 
 debug: |
-  workshop exec -- bash -lc 'echo PATH=$PATH' || true
-  workshop exec -- bash -lc 'ls -l /etc/profile.d/rust.sh' || true
+  workshop exec -- printenv PATH || true
+  workshop exec -- ls -l /etc/profile.d/rust.sh || true
