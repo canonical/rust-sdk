@@ -1,0 +1,19 @@
+summary: setup-base installs rustup bash completions
+
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  # The final line of setup-base writes `rustup completions bash` into
+  # /etc/bash_completion.d/. Assert the file exists and is non-empty —
+  # a partially-completed setup-base would leave it missing or empty.
+  workshop exec -- test -s /etc/bash_completion.d/rustup.sh
+  workshop exec -- head -1 /etc/bash_completion.d/rustup.sh | MATCH "^_rustup\(\)"
+
+debug: |
+  workshop exec -- ls -l /etc/bash_completion.d/rustup.sh || true
+  workshop exec -- head -20 /etc/bash_completion.d/rustup.sh || true

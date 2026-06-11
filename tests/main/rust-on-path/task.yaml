@@ -1,0 +1,19 @@
+summary: rustup, rustc, and cargo are on $PATH inside the workshop
+
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+
+restore: |
+  workshop remove || true
+
+execute: |
+  # `workshop exec` runs as the `workshop` user with a login shell,
+  # which is what setup-base configures via /etc/profile.d/rust.sh.
+  workshop exec -- which rustup | MATCH "/rustup$"
+  workshop exec -- which rustc | MATCH "/rustc$"
+  workshop exec -- which cargo | MATCH "/cargo$"
+
+debug: |
+  workshop exec -- printenv PATH || true
+  workshop exec -- ls -l /etc/profile.d/rust.sh || true
