@@ -19,7 +19,7 @@ jobs:
   build-and-upload-amd64:
     uses: canonical/sdkcraft-actions/.github/workflows/upload.yml@main
     with:
-      platforms: '["ubuntu@22.04:amd64","ubuntu@24.04:amd64"]'
+      platforms: '["ubuntu@22.04:amd64","ubuntu@24.04:amd64","ubuntu@26.04:amd64"]'
       platform-flag: "--platform"
       track: latest
       risk: "stable"
@@ -28,7 +28,7 @@ jobs:
   build-and-upload-arm64:
     uses: canonical/sdkcraft-actions/.github/workflows/upload.yml@main
     with:
-      platforms: '["ubuntu@22.04:arm64","ubuntu@24.04:arm64"]'
+      platforms: '["ubuntu@22.04:arm64","ubuntu@24.04:arm64","ubuntu@26.04:arm64"]'
       platform-flag: "--platform"
       runs-on: '["self-hosted-linux-arm64-noble-xlarge"]'
       track: latest

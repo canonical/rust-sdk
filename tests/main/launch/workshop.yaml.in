@@ -1,0 +1,4 @@
+name: test-rust
+base: ${BASE}
+sdks:
+  - name: try-rust
