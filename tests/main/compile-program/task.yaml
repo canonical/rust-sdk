@@ -22,12 +22,12 @@ execute: |
 
   workshop exec -- tee /home/workshop/app/Cargo.toml >/dev/null <<'CARGO'
   [package]
-  name = \"spread-app\"
-  version = \"0.1.0\"
-  edition = \"2021\"
+  name = "spread-app"
+  version = "0.1.0"
+  edition = "2021"
 
   [dependencies]
-  uuid = { version = \"=1.10.0\", features = [\"v4\"] }
+  uuid = { version = "=1.10.0", features = ["v4"] }
   CARGO
 
   workshop exec -- tee /home/workshop/app/src/main.rs >/dev/null <<'MAIN'
@@ -36,11 +36,11 @@ execute: |
   fn main() {
       let ids = parallel::generate_ids(8, 16);
       if ids.len() != 16 {
-          eprintln!(\"expected 16 ids, got {}\", ids.len());
+          eprintln!("expected 16 ids, got {}", ids.len());
           std::process::exit(1);
       }
       for id in ids {
-          println!(\"{}\", id);
+          println!("{}", id);
       }
   }
   MAIN
@@ -96,8 +96,8 @@ execute: |
           assert_eq!(ids.len(), 32);
           let mut seen = HashSet::new();
           for id in &ids {
-              assert!(!id.is_empty(), \"got empty id\");
-              assert!(seen.insert(id.clone()), \"duplicate id\");
+              assert!(!id.is_empty(), "got empty id");
+              assert!(seen.insert(id.clone()), "duplicate id");
           }
       }
   }
