@@ -10,13 +10,25 @@
     {
       "customType": "regex",
       "managerFilePatterns": [
+        "/^VERSION$/"
+      ],
+      "matchStrings": [
+        "(?<currentValue>[0-9.]+)"
+      ],
+      "depNameTemplate": "rust-lang/rustup",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
         "/^sdkcraft\\.yaml$/"
       ],
       "matchStrings": [
-        "version:\\s*\"(?<currentValue>[0-9.]+)\""
+        "source-tag:\\s*\"(?<currentValue>[0-9.]+)\""
       ],
       "depNameTemplate": "rust-lang/rustup",
-      "datasourceTemplate": "github-releases",
+      "datasourceTemplate": "github-tags",
       "versioningTemplate": "semver"
     }
   ],
