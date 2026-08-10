@@ -1,5 +1,5 @@
 name: rust
-version: "1.29.0"
+version: "1.97.1"
 summary: The Rust toolchain installer
 description: |
   This SDK provides rustup and the Rust toolchain for Rust development.
