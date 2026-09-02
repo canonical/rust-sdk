@@ -12,6 +12,8 @@
       "versioningTemplate": "semver"
     }
   ],
+  "automerge": true,
+  "platformAutomerge": true,
   "baseBranchPatterns": ["1"],
   "packageRules": [
     {
