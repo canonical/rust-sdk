@@ -1,36 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
-  "enabledManagers": [
-    "custom.regex"
-  ],
+  "extends": ["config:recommended"],
+  "enabledManagers": ["custom.regex"],
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": [
-        "/^sdkcraft\\.yaml$/"
-      ],
-      "matchStrings": [
-        "version:\\s*\"(?<currentValue>[0-9.]+)\""
-      ],
-      "depNameTemplate": "rust-lang/rustup",
+      "managerFilePatterns": ["/^sdkcraft\\.yaml$/"],
+      "matchStrings": ["version:\\s*\"(?<currentValue>[0-9.]+)\""],
+      "depNameTemplate": "rust-lang/rust",
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver"
     }
   ],
-  "baseBranchPatterns": [
-    "1"
-  ],
+  "automerge": true,
+  "platformAutomerge": true,
+  "baseBranchPatterns": ["1"],
   "packageRules": [
     {
-      "matchPackageNames": [
-        "rust-lang/rustup"
-      ],
-      "matchBaseBranches": [
-        "1"
-      ],
+      "matchPackageNames": ["rust-lang/rust"],
+      "matchBaseBranches": ["1"],
       "allowedVersions": "/^1\\./"
     }
   ]
